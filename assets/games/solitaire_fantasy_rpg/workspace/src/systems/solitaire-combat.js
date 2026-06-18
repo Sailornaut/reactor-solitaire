@@ -1,6 +1,14 @@
 import { createDeck, shuffle, dealKlondike } from './deck.js';
-import { STARTING_ENEMY } from '../content/enemies.js';
-import { ATTACKS } from '../content/attacks.js';
+import {
+  activateCoreSurge,
+  applyBrace,
+  applyEnemyAttack,
+  applyPlayerDamage,
+  createEnemyState,
+  createHeroState,
+  gainDrawSurge,
+  gainRevealSurge,
+} from './combat.js';
 import { GAME_TEXT } from '../content/game-text.js';
 
 export class SolitaireCombat {
@@ -20,8 +28,8 @@ export class SolitaireCombat {
     this.waste = [];
     this.foundations = { '♠': [], '♥': [], '♦': [], '♣': [] };
     this.selected = null;
-    this.hero = { hp: 100, maxHp: 100, limit: 0 };
-    this.enemy = { ...STARTING_ENEMY };
+    this.hero = createHeroState();
+    this.enemy = createEnemyState();
     this.turnsWithoutDamage = 0;
     this.moves = 0;
     this.combo = 0;
@@ -36,7 +44,7 @@ export class SolitaireCombat {
       const card = this.stock.pop();
       card.faceUp = true;
       this.waste.push(card);
-      this.hero.limit = Math.min(100, this.hero.limit + 2);
+      gainDrawSurge(this.hero);
       this.onToast(GAME_TEXT.drawCard);
     } else if (this.waste.length) {
       this.stock = this.waste.reverse().map(c => ({ ...c, faceUp: false }));
@@ -147,7 +155,7 @@ export class SolitaireCombat {
       const top = col[col.length - 1];
       if (top && !top.faceUp) {
         top.faceUp = true;
-        this.hero.limit = Math.min(100, this.hero.limit + 5);
+        gainRevealSurge(this.hero);
         this.onToast(`Revealed ${top.rank}${top.suit}. Surge +5%`);
       }
     }
@@ -155,48 +163,39 @@ export class SolitaireCombat {
 
   afterPlayerDamage(amount, label) {
     this.moves++;
-    this.combo++;
-    const damage = amount + Math.min(14, this.combo * 2);
-    this.enemy.hp = Math.max(0, this.enemy.hp - damage);
-    this.hero.limit = Math.min(100, this.hero.limit + Math.ceil(damage * 0.45));
+    const result = applyPlayerDamage(this.hero, this.enemy, amount, this.combo);
+    this.combo = result.combo;
     this.turnsWithoutDamage = 0;
-    this.onDamage('enemy', damage, label);
-    if (this.enemy.hp <= 0) this.win(GAME_TEXT.enemyKilledByDamage);
+    this.onDamage('enemy', result.damage, label);
+    if (result.enemyDefeated) this.win(result.winMessage);
   }
 
   enemyAttack(prefix = 'Enemy turn!') {
     if (this.phase !== 'playing') return;
     this.combo = 0;
-    const damage = this.enemy.intent;
-    this.hero.hp = Math.max(0, this.hero.hp - damage);
-    this.hero.limit = Math.min(100, this.hero.limit + 10);
-    this.enemy.intent = Math.min(24, this.enemy.intent + 2 + Math.floor(this.moves / 12));
-    this.onDamage('hero', damage, `${prefix} -${damage} HP`);
-    if (this.hero.hp <= 0) this.lose(GAME_TEXT.heroHpZero);
+    const result = applyEnemyAttack(this.hero, this.enemy, this.moves);
+    this.onDamage('hero', result.damage, `${prefix} -${result.damage} HP`);
+    if (result.heroDefeated) this.lose(result.lossMessage);
     this.emit();
   }
 
   brace() {
     if (this.phase !== 'playing') return;
     this.turnsWithoutDamage++;
-    const reduced = Math.max(4, Math.floor(this.enemy.intent * 0.55));
-    this.hero.hp = Math.max(0, this.hero.hp - reduced);
-    this.hero.limit = Math.min(100, this.hero.limit + 14);
+    const result = applyBrace(this.hero, this.enemy);
     this.combo = 0;
-    this.onDamage('hero', reduced, `Braced: -${reduced} HP, Surge +14%`);
-    if (this.hero.hp <= 0) this.lose(GAME_TEXT.braceLoss);
+    this.onDamage('hero', result.damage, `Braced: -${result.damage} HP, Surge +14%`);
+    if (result.heroDefeated) this.lose(result.lossMessage);
     this.emit();
   }
 
   useLimit() {
     if (this.phase !== 'playing' || this.hero.limit < 100) return;
-    this.hero.limit = 0;
     const faceUp = this.tableau.flat().filter(c => c.faceUp).length;
-    const damage = 42 + faceUp;
-    this.enemy.hp = Math.max(0, this.enemy.hp - damage);
-    this.onDamage('enemyLimit', damage, ATTACKS.coreSurge.label);
+    const result = activateCoreSurge(this.hero, this.enemy, faceUp);
+    this.onDamage('enemyLimit', result.damage, result.label);
     this.combo = 0;
-    if (this.enemy.hp <= 0) this.win(ATTACKS.coreSurge.killMessage);
+    if (result.enemyDefeated) this.win(result.winMessage);
     this.emit();
   }
 
