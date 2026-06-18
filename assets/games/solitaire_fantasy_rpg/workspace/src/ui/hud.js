@@ -1,4 +1,4 @@
-const SUIT_NAMES = { '♠': 'Spades', '♥': 'Hearts', '♦': 'Diamonds', '♣': 'Clubs' };
+import { SUIT_NAMES, GAME_TEXT } from '../content/game-text.js';
 
 export class HudView {
   constructor(combat) {
@@ -110,7 +110,7 @@ export class HudView {
       node.innerHTML = `<span class="rank">${card.rank}</span><span class="suit">${card.suit}</span>`;
       node.setAttribute('aria-label', `${card.rank} of ${SUIT_NAMES[card.suit]}`);
     } else {
-      node.setAttribute('aria-label', 'Face-down battle card');
+      node.setAttribute('aria-label', GAME_TEXT.faceDownCard);
     }
     return node;
   }

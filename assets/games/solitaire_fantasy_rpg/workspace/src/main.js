@@ -2,6 +2,7 @@ import { RenderScene } from './engine/render-scene.js';
 import { SolitaireCombat } from './systems/solitaire-combat.js';
 import { AudioSystem } from './systems/audio.js';
 import { HudView } from './ui/hud.js';
+import { GAME_TEXT } from './content/game-text.js';
 
 const canvas = document.getElementById('game-canvas');
 const loading = document.getElementById('loading');
@@ -60,7 +61,7 @@ async function startGame() {
   hud.showBattle();
   combat.reset();
   running = true;
-  hud.toast('Mission start: defeat the Reactor Wraith with solitaire chains.');
+  hud.toast(GAME_TEXT.missionStart);
 }
 
 function restart() {
@@ -69,7 +70,7 @@ function restart() {
   combat.reset();
   running = true;
   hud.showBattle();
-  hud.toast('Deck reshuffled. New run started.');
+  hud.toast(GAME_TEXT.newRun);
 }
 
 function animate() {

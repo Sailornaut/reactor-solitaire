@@ -1,3 +1,7 @@
+import { STARTING_ENEMY } from '../content/enemies.js';
+import { ATTACKS } from '../content/attacks.js';
+import { GAME_TEXT } from '../content/game-text.js';
+
 const SUITS = ['♠', '♥', '♦', '♣'];
 const COLORS = { '♠': 'black', '♣': 'black', '♥': 'red', '♦': 'red' };
 const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
@@ -27,7 +31,7 @@ export class SolitaireCombat {
     this.foundations = { '♠': [], '♥': [], '♦': [], '♣': [] };
     this.selected = null;
     this.hero = { hp: 100, maxHp: 100, limit: 0 };
-    this.enemy = { name: 'Reactor Wraith', hp: 110, maxHp: 110, intent: 12, phase: 1 };
+    this.enemy = { ...STARTING_ENEMY };
     this.turnsWithoutDamage = 0;
     this.moves = 0;
     this.combo = 0;
@@ -60,11 +64,11 @@ export class SolitaireCombat {
       card.faceUp = true;
       this.waste.push(card);
       this.hero.limit = Math.min(100, this.hero.limit + 2);
-      this.onToast('Drew a battle card. Surge +2%');
+      this.onToast(GAME_TEXT.drawCard);
     } else if (this.waste.length) {
       this.stock = this.waste.reverse().map(c => ({ ...c, faceUp: false }));
       this.waste = [];
-      this.enemyAttack('The Wraith punishes the reshuffle!');
+      this.enemyAttack(GAME_TEXT.reshufflePunish);
     }
     this.emit();
   }
@@ -98,12 +102,12 @@ export class SolitaireCombat {
     if (this.phase !== 'playing') return;
     if (!this.selected) return;
     if (this.selected.cards.length > 1) {
-      this.onToast('Only single cards can channel into foundations.');
+      this.onToast(GAME_TEXT.foundationStackOnly);
       return;
     }
     const card = this.selected.card;
     if (card.suit !== suit || !this.canMoveToFoundation(card)) {
-      this.onToast('Foundation needs same suit in A → K order.');
+      this.onToast(GAME_TEXT.foundationOrder);
       return;
     }
     this.removeSelected();
@@ -125,7 +129,7 @@ export class SolitaireCombat {
       if (top?.faceUp && this.canMoveToFoundation(top)) candidates.push({ source: 'tableau', col, index: this.tableau[col].length - 1, card: top });
     }
     if (!candidates.length) {
-      this.onToast('No safe foundation move right now.');
+      this.onToast(GAME_TEXT.noFoundationMove);
       return;
     }
     const pick = candidates[0];
@@ -143,12 +147,12 @@ export class SolitaireCombat {
     const top = dest[dest.length - 1];
     const legal = top ? top.faceUp && top.color !== first.color && top.value === first.value + 1 : first.value === 13;
     if (!legal) {
-      this.onToast(top ? 'Tableau needs alternating colors descending.' : 'Only a King can open an empty lane.');
+      this.onToast(top ? GAME_TEXT.tableauRule : GAME_TEXT.kingOnly);
       return false;
     }
     this.removeSelected();
     dest.push(...moving);
-    this.afterPlayerDamage(3 + moving.length * 2, moving.length > 1 ? `Chain moved x${moving.length}!` : 'Tactical move!');
+    this.afterPlayerDamage(3 + moving.length * 2, moving.length > 1 ? `Chain moved x${moving.length}!` : GAME_TEXT.tacticalMove);
     this.revealTopCards();
     this.clearSelection(false);
     this.emit();
@@ -184,7 +188,7 @@ export class SolitaireCombat {
     this.hero.limit = Math.min(100, this.hero.limit + Math.ceil(damage * 0.45));
     this.turnsWithoutDamage = 0;
     this.onDamage('enemy', damage, label);
-    if (this.enemy.hp <= 0) this.win('The reactor knight shatters into crystal static.');
+    if (this.enemy.hp <= 0) this.win(GAME_TEXT.enemyKilledByDamage);
   }
 
   enemyAttack(prefix = 'Enemy turn!') {
@@ -195,7 +199,7 @@ export class SolitaireCombat {
     this.hero.limit = Math.min(100, this.hero.limit + 10);
     this.enemy.intent = Math.min(24, this.enemy.intent + 2 + Math.floor(this.moves / 12));
     this.onDamage('hero', damage, `${prefix} -${damage} HP`);
-    if (this.hero.hp <= 0) this.lose('Your HP hit zero before the foundations could stabilize the reactor.');
+    if (this.hero.hp <= 0) this.lose(GAME_TEXT.heroHpZero);
     this.emit();
   }
 
@@ -207,7 +211,7 @@ export class SolitaireCombat {
     this.hero.limit = Math.min(100, this.hero.limit + 14);
     this.combo = 0;
     this.onDamage('hero', reduced, `Braced: -${reduced} HP, Surge +14%`);
-    if (this.hero.hp <= 0) this.lose('You braced, but the reactor surge overwhelmed you.');
+    if (this.hero.hp <= 0) this.lose(GAME_TEXT.braceLoss);
     this.emit();
   }
 
@@ -217,16 +221,16 @@ export class SolitaireCombat {
     const faceUp = this.tableau.flat().filter(c => c.faceUp).length;
     const damage = 42 + faceUp;
     this.enemy.hp = Math.max(0, this.enemy.hp - damage);
-    this.onDamage('enemyLimit', damage, 'CORE SURGE: Photon Rend!');
+    this.onDamage('enemyLimit', damage, ATTACKS.coreSurge.label);
     this.combo = 0;
-    if (this.enemy.hp <= 0) this.win('Your Core Surge cuts through the reactor core.');
+    if (this.enemy.hp <= 0) this.win(ATTACKS.coreSurge.killMessage);
     this.emit();
   }
 
   hint() {
     const move = this.findHint();
     if (!move) {
-      this.onToast('No obvious move. Draw or brace.');
+      this.onToast(GAME_TEXT.noHint);
       return null;
     }
     this.onToast(move.text);
@@ -259,7 +263,7 @@ export class SolitaireCombat {
 
   checkWin() {
     const complete = Object.values(this.foundations).every(stack => stack.length === 13);
-    if (complete) this.win('All foundations complete. The city reactor is purified.');
+    if (complete) this.win(GAME_TEXT.foundationsComplete);
   }
 
   win(body) {
