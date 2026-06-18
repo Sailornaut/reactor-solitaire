@@ -9,6 +9,7 @@ import {
   gainDrawSurge,
   gainRevealSurge,
 } from './combat.js';
+import { canMoveToFoundation, canPlaceOnTableau, isFoundationsComplete } from './solitaire-rules.js';
 import { GAME_TEXT } from '../content/game-text.js';
 
 export class SolitaireCombat {
@@ -87,7 +88,7 @@ export class SolitaireCombat {
       return;
     }
     const card = this.selected.card;
-    if (card.suit !== suit || !this.canMoveToFoundation(card)) {
+    if (card.suit !== suit || !canMoveToFoundation(card, this.foundations[card.suit])) {
       this.onToast(GAME_TEXT.foundationOrder);
       return;
     }
@@ -104,10 +105,10 @@ export class SolitaireCombat {
     if (this.phase !== 'playing') return;
     const candidates = [];
     const wasteTop = this.waste[this.waste.length - 1];
-    if (wasteTop && this.canMoveToFoundation(wasteTop)) candidates.push({ source: 'waste', card: wasteTop });
+    if (wasteTop && canMoveToFoundation(wasteTop, this.foundations[wasteTop.suit])) candidates.push({ source: 'waste', card: wasteTop });
     for (let col = 0; col < 7; col++) {
       const top = this.tableau[col][this.tableau[col].length - 1];
-      if (top?.faceUp && this.canMoveToFoundation(top)) candidates.push({ source: 'tableau', col, index: this.tableau[col].length - 1, card: top });
+      if (top?.faceUp && canMoveToFoundation(top, this.foundations[top.suit])) candidates.push({ source: 'tableau', col, index: this.tableau[col].length - 1, card: top });
     }
     if (!candidates.length) {
       this.onToast(GAME_TEXT.noFoundationMove);
@@ -126,7 +127,7 @@ export class SolitaireCombat {
     const first = moving[0];
     const dest = this.tableau[targetCol];
     const top = dest[dest.length - 1];
-    const legal = top ? top.faceUp && top.color !== first.color && top.value === first.value + 1 : first.value === 13;
+    const legal = canPlaceOnTableau(first, top);
     if (!legal) {
       this.onToast(top ? GAME_TEXT.tableauRule : GAME_TEXT.kingOnly);
       return false;
@@ -143,11 +144,6 @@ export class SolitaireCombat {
   removeSelected() {
     if (this.selected.source === 'waste') this.waste.pop();
     if (this.selected.source === 'tableau') this.tableau[this.selected.col].splice(this.selected.index);
-  }
-
-  canMoveToFoundation(card) {
-    const stack = this.foundations[card.suit];
-    return card.value === stack.length + 1;
   }
 
   revealTopCards() {
@@ -211,10 +207,10 @@ export class SolitaireCombat {
 
   findHint() {
     const wasteTop = this.waste[this.waste.length - 1];
-    if (wasteTop && this.canMoveToFoundation(wasteTop)) return { type: 'waste-foundation', cardId: wasteTop.id, text: `Play ${wasteTop.rank}${wasteTop.suit} to foundation.` };
+    if (wasteTop && canMoveToFoundation(wasteTop, this.foundations[wasteTop.suit])) return { type: 'waste-foundation', cardId: wasteTop.id, text: `Play ${wasteTop.rank}${wasteTop.suit} to foundation.` };
     for (let col = 0; col < 7; col++) {
       const top = this.tableau[col][this.tableau[col].length - 1];
-      if (top?.faceUp && this.canMoveToFoundation(top)) return { type: 'tableau-foundation', cardId: top.id, text: `Channel ${top.rank}${top.suit} to foundation.` };
+      if (top?.faceUp && canMoveToFoundation(top, this.foundations[top.suit])) return { type: 'tableau-foundation', cardId: top.id, text: `Channel ${top.rank}${top.suit} to foundation.` };
     }
     const sources = [];
     if (wasteTop) sources.push({ source: 'waste', card: wasteTop, cards: [wasteTop] });
@@ -226,7 +222,7 @@ export class SolitaireCombat {
         if (src.source === 'tableau' && src.col === col) continue;
         const dest = this.tableau[col];
         const top = dest[dest.length - 1];
-        const legal = top ? top.faceUp && top.color !== src.card.color && top.value === src.card.value + 1 : src.card.value === 13;
+        const legal = canPlaceOnTableau(src.card, top);
         if (legal) return { type: 'tableau', cardId: src.card.id, targetCol: col, text: `Move ${src.card.rank}${src.card.suit} to column ${col + 1}.` };
       }
     }
@@ -234,8 +230,7 @@ export class SolitaireCombat {
   }
 
   checkWin() {
-    const complete = Object.values(this.foundations).every(stack => stack.length === 13);
-    if (complete) this.win(GAME_TEXT.foundationsComplete);
+    if (isFoundationsComplete(this.foundations)) this.win(GAME_TEXT.foundationsComplete);
   }
 
   win(body) {
