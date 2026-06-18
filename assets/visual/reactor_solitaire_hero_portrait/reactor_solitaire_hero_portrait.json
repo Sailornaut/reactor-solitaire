@@ -1,0 +1,35 @@
+{
+  "id": "reactor_solitaire_hero_portrait",
+  "name": "Reactor Solitaire Hero Portrait",
+  "category": "visual",
+  "type": "generated_image",
+  "file": "89b635e4e05d4b9182472f7d6bfbb41d.jpg",
+  "urls": [
+    "https://seeleh5.blob.core.windows.net/kokokeepall/seedream_image_gen/b35a130d4ffc4e53a01b1fa839235f4a_31ba0d0f-64f0-4e35-9680-3415b60e31ec/89b635e4e05d4b9182472f7d6bfbb41d.jpg"
+  ],
+  "description": "Generated original cyber-fantasy mercenary hero portrait used in the solitaire RPG interface.",
+  "tags": [
+    "visual",
+    "portrait",
+    "hero",
+    "cyber-fantasy",
+    "game-art"
+  ],
+  "keywords": [
+    "mercenary",
+    "sword",
+    "teal-glow",
+    "anime-rpg"
+  ],
+  "compat": [
+    "threejs"
+  ],
+  "status": "ready",
+  "created_at": "2026-06-18T11:48:15Z",
+  "source_date": "2026-06-18",
+  "version": "1.0",
+  "lineage_root": "solitaire_fantasy_rpg",
+  "canvas_id": "33ff6d9c-383a-4a1f-8b69-d0c3e65a5618",
+  "session_canvas_id": "33ff6d9c-383a-4a1f-8b69-d0c3e65a5618",
+  "thread_id": "33ff6d9c-383a-4a1f-8b69-d0c3e65a5618|33ba648e-d8b4-46c3-8750-4191d6c054b5"
+}

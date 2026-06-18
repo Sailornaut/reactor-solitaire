@@ -1,0 +1,35 @@
+{
+  "id": "reactor_solitaire_bgm",
+  "name": "Reactor Solitaire Battle Music",
+  "category": "audio",
+  "type": "retrieved_bgm",
+  "file": "bgm_d4cd7e46-06f4-405c-95d6-35d439525e3b.mp3",
+  "urls": [
+    "https://static.seeles.ai/data/asset/export/3f6b0dcf-b6e8-40df-9bfb-4be325d41a48/128887/bgm_d4cd7e46-06f4-405c-95d6-35d439525e3b.mp3"
+  ],
+  "description": "Retrieved loopable cyber-fantasy background music used during the solitaire RPG battle sequence.",
+  "tags": [
+    "audio",
+    "bgm",
+    "cyber",
+    "fantasy",
+    "game-music"
+  ],
+  "keywords": [
+    "battle-loop",
+    "synth",
+    "orchestral-rock",
+    "boss-fight"
+  ],
+  "compat": [
+    "threejs"
+  ],
+  "status": "ready",
+  "created_at": "2026-06-18T11:48:15Z",
+  "source_date": "2026-06-18",
+  "version": "1.0",
+  "lineage_root": "solitaire_fantasy_rpg",
+  "canvas_id": "33ff6d9c-383a-4a1f-8b69-d0c3e65a5618",
+  "session_canvas_id": "33ff6d9c-383a-4a1f-8b69-d0c3e65a5618",
+  "thread_id": "33ff6d9c-383a-4a1f-8b69-d0c3e65a5618|33ba648e-d8b4-46c3-8750-4191d6c054b5"
+}
