@@ -12,6 +12,7 @@ export class HudView {
       waste: document.getElementById('waste-card'),
       heroHp: document.getElementById('hero-hp'),
       heroHpBar: document.getElementById('hero-hp-bar'),
+      enemyName: document.getElementById('enemy-name'),
       enemyHp: document.getElementById('enemy-hp'),
       enemyHpBar: document.getElementById('enemy-hp-bar'),
       enemyIntent: document.getElementById('enemy-intent'),
@@ -54,6 +55,7 @@ export class HudView {
   }
 
   renderBars(state) {
+    this.dom.enemyName.textContent = state.enemy.name;
     this.dom.heroHp.textContent = `HP ${state.hero.hp}/${state.hero.maxHp}`;
     this.dom.heroHpBar.style.width = `${Math.max(0, state.hero.hp / state.hero.maxHp * 100)}%`;
     this.dom.enemyHp.textContent = `HP ${state.enemy.hp}/${state.enemy.maxHp}`;

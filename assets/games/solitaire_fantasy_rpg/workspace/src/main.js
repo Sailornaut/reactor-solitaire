@@ -61,7 +61,8 @@ async function startGame() {
   hud.showBattle();
   combat.reset();
   running = true;
-  hud.toast(GAME_TEXT.missionStart);
+  const enemyName = combat.snapshot().enemy.name;
+  hud.toast(`Mission start: defeat the ${enemyName} with solitaire chains.`);
 }
 
 function restart() {
@@ -70,7 +71,8 @@ function restart() {
   combat.reset();
   running = true;
   hud.showBattle();
-  hud.toast(GAME_TEXT.newRun);
+  const enemyName = combat.snapshot().enemy.name;
+  hud.toast(`${GAME_TEXT.newRun} Facing: ${enemyName}.`);
 }
 
 function animate() {

@@ -11,6 +11,7 @@ import {
 } from './combat.js';
 import { canMoveToFoundation, canPlaceOnTableau, isFoundationsComplete } from './solitaire-rules.js';
 import { GAME_TEXT } from '../content/game-text.js';
+import { ENCOUNTER_ORDER } from '../content/enemies.js';
 
 export class SolitaireCombat {
   constructor({ onChange, onDamage, onToast, onGameOver }) {
@@ -19,6 +20,9 @@ export class SolitaireCombat {
     this.onToast = onToast;
     this.onGameOver = onGameOver;
     this.combo = 0;
+    // Tracks which enemy in ENCOUNTER_ORDER is active.
+    // Advances on win; stays the same on loss so the player retries.
+    this.encounterIndex = 0;
     this.reset();
   }
 
@@ -30,7 +34,7 @@ export class SolitaireCombat {
     this.foundations = { '♠': [], '♥': [], '♦': [], '♣': [] };
     this.selected = null;
     this.hero = createHeroState();
-    this.enemy = createEnemyState();
+    this.enemy = createEnemyState(ENCOUNTER_ORDER[this.encounterIndex]);
     this.turnsWithoutDamage = 0;
     this.moves = 0;
     this.combo = 0;
@@ -236,6 +240,8 @@ export class SolitaireCombat {
   win(body) {
     if (this.phase !== 'playing') return;
     this.phase = 'won';
+    // Advance to the next encounter; wrap around after the final boss.
+    this.encounterIndex = (this.encounterIndex + 1) % ENCOUNTER_ORDER.length;
     this.onGameOver('Mission Complete', body);
   }
 
@@ -264,7 +270,8 @@ export class SolitaireCombat {
       hero: this.hero,
       enemy: this.enemy,
       phase: this.phase,
-      moves: this.moves
+      moves: this.moves,
+      encounter: this.encounterIndex,
     };
   }
 }
