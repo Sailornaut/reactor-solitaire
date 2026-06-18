@@ -60,7 +60,7 @@ export class SolitaireCombat {
       card.faceUp = true;
       this.waste.push(card);
       this.hero.limit = Math.min(100, this.hero.limit + 2);
-      this.onToast('Drew a battle card. Limit +2%');
+      this.onToast('Drew a battle card. Surge +2%');
     } else if (this.waste.length) {
       this.stock = this.waste.reverse().map(c => ({ ...c, faceUp: false }));
       this.waste = [];
@@ -171,7 +171,7 @@ export class SolitaireCombat {
       if (top && !top.faceUp) {
         top.faceUp = true;
         this.hero.limit = Math.min(100, this.hero.limit + 5);
-        this.onToast(`Revealed ${top.rank}${top.suit}. Limit +5%`);
+        this.onToast(`Revealed ${top.rank}${top.suit}. Surge +5%`);
       }
     }
   }
@@ -206,7 +206,7 @@ export class SolitaireCombat {
     this.hero.hp = Math.max(0, this.hero.hp - reduced);
     this.hero.limit = Math.min(100, this.hero.limit + 14);
     this.combo = 0;
-    this.onDamage('hero', reduced, `Braced: -${reduced} HP, Limit +14%`);
+    this.onDamage('hero', reduced, `Braced: -${reduced} HP, Surge +14%`);
     if (this.hero.hp <= 0) this.lose('You braced, but the reactor surge overwhelmed you.');
     this.emit();
   }
@@ -217,9 +217,9 @@ export class SolitaireCombat {
     const faceUp = this.tableau.flat().filter(c => c.faceUp).length;
     const damage = 42 + faceUp;
     this.enemy.hp = Math.max(0, this.enemy.hp - damage);
-    this.onDamage('enemyLimit', damage, 'LIMIT BREAK: Omnislash Cascade!');
+    this.onDamage('enemyLimit', damage, 'CORE SURGE: Photon Rend!');
     this.combo = 0;
-    if (this.enemy.hp <= 0) this.win('Your Limit Break cuts through the reactor core.');
+    if (this.enemy.hp <= 0) this.win('Your Core Surge cuts through the reactor core.');
     this.emit();
   }
 

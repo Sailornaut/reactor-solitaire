@@ -15,7 +15,7 @@ export const ASSETS = {
 };
 
 export const ASSET_MANIFEST = `
-ASSET MANIFEST — Reactor Solitaire: Limit Break
+ASSET MANIFEST — Reactor Solitaire: Core Surge
 Art direction: original 1990s cyber-fantasy RPG homage, neon reactor city, anime-painterly portraits. No copyrighted FF7 characters/assets.
 Platform: PC + mobile browser
 

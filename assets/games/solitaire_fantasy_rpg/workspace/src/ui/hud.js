@@ -59,7 +59,7 @@ export class HudView {
     this.dom.enemyHp.textContent = `HP ${state.enemy.hp}/${state.enemy.maxHp}`;
     this.dom.enemyHpBar.style.width = `${Math.max(0, state.enemy.hp / state.enemy.maxHp * 100)}%`;
     this.dom.enemyIntent.textContent = `Intent: ${state.enemy.intent} damage`;
-    this.dom.limitText.textContent = `Limit ${state.hero.limit}%`;
+    this.dom.limitText.textContent = `Surge ${state.hero.limit}%`;
     this.dom.limitBar.style.width = `${state.hero.limit}%`;
   }
 

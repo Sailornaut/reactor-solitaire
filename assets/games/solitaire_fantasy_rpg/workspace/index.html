@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <meta name="theme-color" content="#090b18" />
-  <title>Reactor Solitaire: Limit Break</title>
+  <title>Reactor Solitaire: Core Surge</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -14,18 +14,18 @@
     <section id="title-screen" class="panel title-panel">
       <div class="title-left">
         <div class="title-art"></div>
-        <h1>Reactor Solitaire:<br>Limit Break</h1>
+        <h1>Reactor Solitaire:<br>Core Surge</h1>
       </div>
       <div class="title-copy">
         <p class="eyebrow">Cyber-fantasy card combat RPG</p>
-        <p class="pitch">Fight through reactor phantoms by solving a solitaire battle grid. Every smart card move charges your Limit; every dead turn lets the enemy strike.</p>
+        <p class="pitch">Fight through reactor phantoms by solving a solitaire battle grid. Every smart card move charges your Surge; every dead turn lets the enemy strike.</p>
         <div id="loading" class="loading">Loading assets…</div>
         <button id="start-button" class="primary" hidden>Start Mission</button>
         <div class="rules">
           <strong>Combat rules</strong>
           <span>Move alternating colors downward in tableau.</span>
           <span>Build foundations A→K to unleash big damage.</span>
-          <span>Draw cards, chain moves, and use Limit before HP hits 0.</span>
+          <span>Draw cards, chain moves, and use Core Surge before HP hits 0.</span>
         </div>
       </div>
     </section>
@@ -35,7 +35,7 @@
         <span class="label">Merc</span>
         <strong id="hero-hp">HP 100</strong>
         <div class="bar"><i id="hero-hp-bar"></i></div>
-        <small id="limit-text">Limit 0%</small>
+        <small id="limit-text">Surge 0%</small>
         <div class="bar limit"><i id="limit-bar"></i></div>
       </div>
       <div class="status-card enemy">
@@ -52,7 +52,7 @@
         <button id="draw-pile" class="pile draw" aria-label="Draw pile"><span>Draw</span><strong id="stock-count">24</strong></button>
         <button id="waste-pile" class="pile waste" aria-label="Waste pile"><span>Waste</span><strong id="waste-card">—</strong></button>
         <div id="foundations" class="foundations" aria-label="Foundations"></div>
-        <button id="limit-button" class="limit-button" disabled>Limit<br><small>Omnislash</small></button>
+        <button id="limit-button" class="limit-button" disabled>Surge<br><small>Photon Rend</small></button>
       </div>
       <div id="tableau" class="tableau" aria-label="Solitaire tableau"></div>
       <div class="action-row">
