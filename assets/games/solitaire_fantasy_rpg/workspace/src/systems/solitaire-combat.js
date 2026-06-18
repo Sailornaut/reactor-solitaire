@@ -1,10 +1,7 @@
+import { createDeck, shuffle, dealKlondike } from './deck.js';
 import { STARTING_ENEMY } from '../content/enemies.js';
 import { ATTACKS } from '../content/attacks.js';
 import { GAME_TEXT } from '../content/game-text.js';
-
-const SUITS = ['♠', '♥', '♦', '♣'];
-const COLORS = { '♠': 'black', '♣': 'black', '♥': 'red', '♦': 'red' };
-const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 
 export class SolitaireCombat {
   constructor({ onChange, onDamage, onToast, onGameOver }) {
@@ -17,16 +14,9 @@ export class SolitaireCombat {
   }
 
   reset() {
-    const deck = this.shuffle(this.createDeck());
-    this.tableau = Array.from({ length: 7 }, () => []);
-    for (let col = 0; col < 7; col++) {
-      for (let row = 0; row <= col; row++) {
-        const card = deck.pop();
-        card.faceUp = row === col;
-        this.tableau[col].push(card);
-      }
-    }
-    this.stock = deck.map(c => ({ ...c, faceUp: false }));
+    const { tableau, stock } = dealKlondike(shuffle(createDeck()));
+    this.tableau = tableau;
+    this.stock = stock;
     this.waste = [];
     this.foundations = { '♠': [], '♥': [], '♦': [], '♣': [] };
     this.selected = null;
@@ -37,23 +27,6 @@ export class SolitaireCombat {
     this.combo = 0;
     this.phase = 'playing';
     this.emit();
-  }
-
-  createDeck() {
-    const cards = [];
-    for (const suit of SUITS) {
-      RANKS.forEach((rank, index) => cards.push({ id: `${rank}${suit}`, suit, rank, value: index + 1, color: COLORS[suit], faceUp: false }));
-    }
-    return cards;
-  }
-
-  shuffle(cards) {
-    const arr = [...cards];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
   }
 
   draw() {
