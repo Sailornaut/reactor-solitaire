@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { ASSETS } from '../config/assets.js';
+import { BACKGROUNDS } from '../content/backgrounds.js';
 
 export class RenderScene {
   constructor(canvas) {
@@ -95,9 +96,9 @@ export class RenderScene {
     this.backdrop = new THREE.Mesh(geo, mat);
     this.backdrop.position.z = -4;
     this.scene.add(this.backdrop);
-    const veil = new THREE.Mesh(new THREE.PlaneGeometry(16, 9), new THREE.MeshBasicMaterial({ color: 0x050812, transparent: true, opacity: 0.28 }));
-    veil.position.z = -3.9;
-    this.scene.add(veil);
+    this.veil = new THREE.Mesh(new THREE.PlaneGeometry(16, 9), new THREE.MeshBasicMaterial({ color: 0x050812, transparent: true, opacity: 0.28 }));
+    this.veil.position.z = -3.9;
+    this.scene.add(this.veil);
   }
 
   addPortrait(texture, x, y, h, kind) {
@@ -127,6 +128,29 @@ export class RenderScene {
       mesh.userData.speed = 0.15 + Math.random() * 0.55;
       this.scene.add(mesh);
       this.particles.push(mesh);
+    }
+  }
+
+  /**
+   * Switch the visual theme by updating particle colors and the veil.
+   * The backdrop texture (remote art or procedural fallback) is not replaced so
+   * the first-encounter look is preserved exactly.
+   * Safe to call before load() completes — guards are in place.
+   */
+  setBackground(key) {
+    const theme = BACKGROUNDS[key];
+    if (!theme) return;
+
+    if (this.veil) {
+      this.veil.material.color.set(theme.veilColor);
+      this.veil.material.opacity = theme.veilOpacity;
+    }
+
+    const color = new THREE.Color(theme.particleColor);
+    for (const p of this.particles) {
+      if (!p.userData.decay) {
+        p.material.color.set(color);
+      }
     }
   }
 

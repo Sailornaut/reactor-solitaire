@@ -3,6 +3,7 @@ import { SolitaireCombat } from './systems/solitaire-combat.js';
 import { AudioSystem } from './systems/audio.js';
 import { HudView } from './ui/hud.js';
 import { GAME_TEXT } from './content/game-text.js';
+import { ENCOUNTER_BACKGROUNDS } from './content/backgrounds.js';
 
 const canvas = document.getElementById('game-canvas');
 const loading = document.getElementById('loading');
@@ -61,8 +62,9 @@ async function startGame() {
   hud.showBattle();
   combat.reset();
   running = true;
-  const enemyName = combat.snapshot().enemy.name;
-  hud.toast(`Mission start: defeat the ${enemyName} with solitaire chains.`);
+  const snap = combat.snapshot();
+  renderScene.setBackground(ENCOUNTER_BACKGROUNDS[snap.encounter]);
+  hud.toast(`Mission start: defeat the ${snap.enemy.name} with solitaire chains.`);
 }
 
 function restart() {
@@ -71,8 +73,9 @@ function restart() {
   combat.reset();
   running = true;
   hud.showBattle();
-  const enemyName = combat.snapshot().enemy.name;
-  hud.toast(`${GAME_TEXT.newRun} Facing: ${enemyName}.`);
+  const snap = combat.snapshot();
+  renderScene.setBackground(ENCOUNTER_BACKGROUNDS[snap.encounter]);
+  hud.toast(`${GAME_TEXT.newRun} Facing: ${snap.enemy.name}.`);
 }
 
 function animate() {
@@ -96,3 +99,9 @@ window.addEventListener('keydown', (event) => {
 startButton.addEventListener('click', startGame, { once: true });
 restartButton.addEventListener('click', restart);
 boot();
+
+// Dev-only console helpers — stripped from production builds by Vite's tree-shaking.
+if (import.meta.env.DEV) {
+  window.__game = { get combat() { return combat; }, get renderScene() { return renderScene; } };
+  console.info('[dev] window.__game.combat and window.__game.renderScene are available.');
+}
