@@ -8,6 +8,8 @@ export class HudView {
       battle: document.getElementById('battle-ui'),
       tableau: document.getElementById('tableau'),
       foundations: document.getElementById('foundations'),
+      drawPile: document.getElementById('draw-pile'),
+      wastePile: document.getElementById('waste-pile'),
       stock: document.getElementById('stock-count'),
       waste: document.getElementById('waste-card'),
       heroHp: document.getElementById('hero-hp'),
@@ -30,6 +32,10 @@ export class HudView {
   bindStatic() {
     document.getElementById('draw-pile').addEventListener('click', () => this.combat.draw());
     document.getElementById('waste-pile').addEventListener('click', () => this.combat.selectFromWaste());
+    document.getElementById('waste-pile').addEventListener('dblclick', (event) => {
+      event.preventDefault();
+      if (this.combat.selectWasteTop()) this.combat.playSelectedToFoundation();
+    });
     document.getElementById('auto-button').addEventListener('click', () => this.combat.autoFoundation());
     document.getElementById('end-turn-button').addEventListener('click', () => this.combat.brace());
     document.getElementById('limit-button').addEventListener('click', () => this.combat.useLimit());
@@ -48,10 +54,37 @@ export class HudView {
     this.renderBars(state);
     this.renderFoundations(state);
     this.renderTableau(state);
-    this.dom.stock.textContent = state.stock.length;
-    const topWaste = state.waste[state.waste.length - 1];
-    this.dom.waste.textContent = topWaste ? `${topWaste.rank}${topWaste.suit}` : (state.stock.length ? '—' : '↻');
+    this.renderPiles(state);
     this.dom.limitButton.disabled = state.hero.limit < 100 || state.phase !== 'playing';
+  }
+
+  renderPiles(state) {
+    this.dom.drawPile.classList.toggle('empty', !state.stock.length);
+    this.dom.stock.textContent = state.stock.length;
+
+    const topWaste = state.waste[state.waste.length - 1];
+    this.dom.waste.innerHTML = '';
+    this.dom.wastePile.draggable = Boolean(topWaste);
+    this.dom.wastePile.ondragstart = topWaste
+      ? (event) => {
+          event.dataTransfer.setData('text/plain', topWaste.id);
+          event.dataTransfer.effectAllowed = 'move';
+          this.combat.selectWasteTop(false);
+          this.dom.wastePile.classList.add('dragging');
+        }
+      : null;
+    this.dom.wastePile.ondragend = topWaste
+      ? () => {
+          this.dom.wastePile.classList.remove('dragging');
+          this.bounceIfStillSelected();
+        }
+      : null;
+
+    if (topWaste) {
+      this.dom.waste.appendChild(this.createStaticCard(topWaste, 'pile-card'));
+    } else {
+      this.dom.waste.textContent = state.stock.length ? '—' : '↻';
+    }
   }
 
   renderBars(state) {
@@ -72,8 +105,23 @@ export class HudView {
       slot.className = 'foundation-slot';
       slot.dataset.suit = suit;
       const top = state.foundations[suit][state.foundations[suit].length - 1];
-      slot.innerHTML = top ? `<span>${top.rank}${top.suit}</span><small>${SUIT_NAMES[suit]}</small>` : `<span>${suit}</span><small>A → K</small>`;
+      if (top) {
+        slot.appendChild(this.createStaticCard(top, 'foundation-card'));
+        const label = document.createElement('small');
+        label.textContent = SUIT_NAMES[suit];
+        slot.appendChild(label);
+      } else {
+        slot.innerHTML = `<span>${suit}</span><small>A → K</small>`;
+      }
       slot.addEventListener('click', () => this.combat.clickFoundation(suit));
+      slot.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+      });
+      slot.addEventListener('drop', (event) => {
+        event.preventDefault();
+        if (!this.combat.clickFoundation(suit)) this.bounceSelected();
+      });
       this.dom.foundations.appendChild(slot);
     }
   }
@@ -89,6 +137,14 @@ export class HudView {
       col.addEventListener('click', (event) => {
         if (event.target === col) this.combat.moveSelectedToTableau(colIndex);
       });
+      col.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+      });
+      col.addEventListener('drop', (event) => {
+        event.preventDefault();
+        if (!this.combat.moveSelectedToTableau(colIndex)) this.bounceSelected();
+      });
       column.forEach((card, index) => {
         const node = this.createCard(card, state.selected, colIndex, index);
         node.style.top = `${index * offset}px`;
@@ -96,6 +152,22 @@ export class HudView {
         node.addEventListener('click', (event) => {
           event.stopPropagation();
           this.combat.selectTableau(colIndex, index);
+        });
+        node.addEventListener('dblclick', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          if (this.combat.selectTableauStack(colIndex, index)) this.combat.playSelectedToFoundation();
+        });
+        node.addEventListener('dragstart', (event) => {
+          event.stopPropagation();
+          event.dataTransfer.setData('text/plain', card.id);
+          event.dataTransfer.effectAllowed = 'move';
+          this.combat.selectTableauStack(colIndex, index, false);
+          node.classList.add('dragging');
+        });
+        node.addEventListener('dragend', () => {
+          node.classList.remove('dragging');
+          this.bounceIfStillSelected();
         });
         col.appendChild(node);
       });
@@ -107,6 +179,7 @@ export class HudView {
     const node = document.createElement('button');
     node.className = `card ${card.color === 'red' ? 'red' : 'black'} ${card.faceUp ? '' : 'face-down'}`;
     node.dataset.cardId = card.id;
+    node.draggable = card.faceUp;
     if (selected?.source === 'tableau' && selected.col === col && index >= selected.index) node.classList.add('selected');
     if (card.faceUp) {
       node.innerHTML = `<span class="rank">${card.rank}</span><span class="suit">${card.suit}</span>`;
@@ -115,6 +188,35 @@ export class HudView {
       node.setAttribute('aria-label', GAME_TEXT.faceDownCard);
     }
     return node;
+  }
+
+  createStaticCard(card, extraClass = '') {
+    const node = document.createElement('div');
+    node.className = `card static-card ${extraClass} ${card.color === 'red' ? 'red' : 'black'}`;
+    node.dataset.cardId = card.id;
+    node.innerHTML = `<span class="rank">${card.rank}</span><span class="suit">${card.suit}</span>`;
+    node.setAttribute('aria-label', `${card.rank} of ${SUIT_NAMES[card.suit]}`);
+    return node;
+  }
+
+  bounceIfStillSelected() {
+    requestAnimationFrame(() => {
+      if (this.combat.snapshot().selected) this.bounceSelected();
+    });
+  }
+
+  bounceSelected() {
+    const selected = this.combat.snapshot().selected;
+    if (!selected) return;
+
+    for (const card of selected.cards) {
+      const node = document.querySelector(`[data-card-id="${CSS.escape(card.id)}"]`);
+      if (!node) continue;
+      node.classList.remove('bounce-back');
+      void node.offsetWidth;
+      node.classList.add('bounce-back');
+      setTimeout(() => node.classList.remove('bounce-back'), 260);
+    }
   }
 
   toast(message) {

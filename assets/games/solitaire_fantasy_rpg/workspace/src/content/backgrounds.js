@@ -1,3 +1,5 @@
+import { asset } from '../config/assets.js';
+
 /**
  * Background theme definitions for Reactor Solitaire: Core Surge.
  *
@@ -17,7 +19,7 @@ export const BACKGROUNDS = {
    */
   rainyReactorDistrict: {
     label: 'Rainy Reactor District',
-    backdrop: '/assets/art/rainy-reactor.png',
+    backdrop: asset('assets/art/rainy-reactor.png'),
     particleColor: 0x60f7ff,  // cold cyan
     veilColor: 0x050812,
     veilOpacity: 0.28,
@@ -29,7 +31,7 @@ export const BACKGROUNDS = {
    */
   neonMarketAlley: {
     label: 'Neon Market Alley',
-    backdrop: '/assets/art/neon-market.png',
+    backdrop: asset('assets/art/neon-market.png'),
     particleColor: 0xff4fa3,  // hot magenta
     veilColor: 0x0a0308,
     veilOpacity: 0.20,
@@ -41,7 +43,7 @@ export const BACKGROUNDS = {
    */
   corporateSkybridge: {
     label: 'Corporate Skybridge',
-    backdrop: '/assets/art/skybridge.png',
+    backdrop: asset('assets/art/skybridge.png'),
     particleColor: 0x4dffb0,  // mint green
     veilColor: 0x02090c,
     veilOpacity: 0.34,

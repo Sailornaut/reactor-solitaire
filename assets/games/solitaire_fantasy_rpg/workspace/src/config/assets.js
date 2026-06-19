@@ -38,19 +38,21 @@
  *   Audio  → AudioSystem silently no-ops; game is fully playable without sound.
  * ─────────────────────────────────────────────────────────────────────────────
  */
+export const asset = (path) => `${import.meta.env.BASE_URL}${path}`;
+
 export const ASSETS = {
   art: {
-    battleBackdrop: '/assets/art/backdrop.png',
-    heroPortrait:   '/assets/art/hero.jpg',
-    enemyPortrait:  '/assets/art/reactor-wraith.png', // title screen default; swapped per-encounter at mission start
-    titleArt:       '/assets/art/title.jpg',
+    battleBackdrop: asset('assets/art/backdrop.png'),
+    heroPortrait:   asset('assets/art/hero.jpg'),
+    enemyPortrait:  asset('assets/art/reactor-wraith.png'), // title screen default; swapped per-encounter at mission start
+    titleArt:       asset('assets/art/title.jpg'),
   },
   audio: {
-    bgm:      '/assets/audio/bgm.mp3',
-    magicHit: '/assets/audio/sfx-hit.mp3',
-    ui:       '/assets/audio/sfx-ui.mp3',
-    limit:    '/assets/audio/sfx-limit.mp3',
-    enemy:    '/assets/audio/sfx-enemy.mp3',
+    bgm:      asset('assets/audio/bgm.mp3'),
+    magicHit: asset('assets/audio/sfx-hit.mp3'),
+    ui:       asset('assets/audio/sfx-ui.mp3'),
+    limit:    asset('assets/audio/sfx-limit.mp3'),
+    enemy:    asset('assets/audio/sfx-enemy.mp3'),
   },
 };
 

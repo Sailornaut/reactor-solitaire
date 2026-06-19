@@ -33,8 +33,9 @@ export class RenderScene {
       this.loadTexture(ASSETS.art.titleArt, 'title')
     ]);
     this.addBackdrop(backdrop);
-    this.hero = this.addPortrait(hero, -4.0, 2.0, 2.65, 'hero');
-    this.enemy = this.addPortrait(enemy, 4.0, 2.0, 2.75, 'enemy');
+    this.hero = this.addPortrait(hero, -5.8, 0.2, 1.99, 'hero');
+    this.enemy = this.addPortrait(enemy, 5.8, 0.2, 2.06, 'enemy');
+    this.updatePortraitEdgePositions();
     this.addCrystalField();
     return { backdrop, hero, enemy, title };
   }
@@ -183,6 +184,28 @@ export class RenderScene {
     this.camera.top = viewH / 2;
     this.camera.bottom = -viewH / 2;
     this.camera.updateProjectionMatrix();
+    this.updatePortraitEdgePositions();
+  }
+
+  updatePortraitEdgePositions() {
+    const marginPx = 4;
+    const viewW = this.camera.right - this.camera.left;
+    const pxToWorld = viewW / window.innerWidth;
+    const margin = marginPx * pxToWorld;
+
+    if (this.hero) {
+      const width = this.hero.geometry.parameters.width;
+      this.hero.userData.baseX = this.camera.left + margin + width / 2;
+      this.hero.position.x = this.hero.userData.baseX;
+      this.hero.userData.ring.position.x = this.hero.userData.baseX;
+    }
+
+    if (this.enemy) {
+      const width = this.enemy.geometry.parameters.width;
+      this.enemy.userData.baseX = this.camera.right - margin - width / 2;
+      this.enemy.position.x = this.enemy.userData.baseX;
+      this.enemy.userData.ring.position.x = this.enemy.userData.baseX;
+    }
   }
 
   hit(kind) {

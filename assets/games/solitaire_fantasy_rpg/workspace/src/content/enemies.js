@@ -1,3 +1,5 @@
+import { asset } from '../config/assets.js';
+
 /**
  * Enemy definitions.
  * Combat numbers (hp, maxHp, intent, phase) live here alongside
@@ -17,7 +19,7 @@ export const ENEMIES = {
     maxHp: 110,
     intent: 12,
     phase: 1,
-    portrait: '/assets/art/reactor-wraith.png',
+    portrait: asset('assets/art/reactor-wraith.png'),
   },
 
   /**
@@ -30,7 +32,7 @@ export const ENEMIES = {
     maxHp: 75,
     intent: 8,
     phase: 1,
-    portrait: '/assets/art/drone-warden.png',
+    portrait: asset('assets/art/drone-warden.png'),
   },
 
   /**
@@ -43,7 +45,7 @@ export const ENEMIES = {
     maxHp: 90,
     intent: 16,
     phase: 1,
-    portrait: '/assets/art/glassblade-specter.png',
+    portrait: asset('assets/art/glassblade-specter.png'),
   },
 
   /**
@@ -56,7 +58,7 @@ export const ENEMIES = {
     maxHp: 155,
     intent: 10,
     phase: 1,
-    portrait: '/assets/art/sludge-revenant.png',
+    portrait: asset('assets/art/sludge-revenant.png'),
   },
 
   /**
@@ -69,7 +71,7 @@ export const ENEMIES = {
     maxHp: 135,
     intent: 14,
     phase: 1,
-    portrait: '/assets/art/corporate-knight.png',
+    portrait: asset('assets/art/corporate-knight.png'),
   },
 
   /**
@@ -82,7 +84,7 @@ export const ENEMIES = {
     maxHp: 200,
     intent: 18,
     phase: 1,
-    portrait: '/assets/art/core-seraph.png',
+    portrait: asset('assets/art/core-seraph.png'),
   },
 };
 

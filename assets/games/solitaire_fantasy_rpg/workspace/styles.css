@@ -43,27 +43,39 @@ h1 { font-size: clamp(34px, 5.2vw, 66px); line-height: .88; margin: 0; text-tran
 .bar.limit { margin-top: 4px; }
 .bar.limit i { background: linear-gradient(90deg, var(--gold), var(--pink)); width: 0%; }
 .objective { justify-self: center; text-align: center; max-width: 520px; color: #dce8ff; font-weight: 750; }
-#battle-ui { position: absolute; left: 50%; bottom: max(12px, env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(1180px, calc(100vw - 18px)); display: grid; gap: 12px; }
-.top-row { display: grid; grid-template-columns: 104px 104px 1fr 132px; gap: 10px; align-items: stretch; }
+#battle-ui { position: absolute; left: 50%; top: calc(max(12px, env(safe-area-inset-top)) + 104px); transform: translateX(-50%); width: min(1180px, calc(100vw - 18px)); display: grid; gap: 12px; }
+.top-row { display: grid; grid-template-columns: 104px 104px 300px 132px; gap: 10px; align-items: stretch; justify-content: center; }
 .pile, .limit-button { min-height: 82px; padding: 10px; background: linear-gradient(145deg, rgba(13,19,43,.94), rgba(30,39,83,.9)); }
 .pile strong { display: block; margin-top: 5px; font-size: 24px; }
-.draw { border-color: rgba(96,247,255,.42); }
+.draw { position: relative; overflow: hidden; border-color: rgba(96,247,255,.42); background: radial-gradient(circle at 35% 25%, rgba(96,247,255,.45), transparent 28%), linear-gradient(145deg, #151e4d, #070a18); }
+.draw::after { content: '✦'; position: absolute; inset: 0; display: grid; place-items: center; color: rgba(96,247,255,.36); font-size: 34px; pointer-events: none; }
+.draw span, .draw strong { position: relative; z-index: 1; text-shadow: 0 2px 8px rgba(0,0,0,.72); }
+.draw.empty { filter: grayscale(.7); opacity: .72; }
 .waste { border-color: rgba(255,216,107,.42); }
 .limit-button { background: linear-gradient(145deg, rgba(255,216,107,.95), rgba(255,79,163,.86)); color: #16101f; }
-.foundations { display: grid; grid-template-columns: repeat(4, minmax(70px, 1fr)); gap: 10px; }
+.foundations { display: grid; grid-template-columns: repeat(4, 70px); gap: 8px; justify-content: center; }
 .foundation-slot, .card, .tableau-column { user-select: none; }
-.foundation-slot { min-height: 82px; border-radius: 14px; border: 1px dashed rgba(255,255,255,.32); background: rgba(7,10,24,.62); display: grid; place-items: center; color: rgba(255,255,255,.45); font-weight: 900; }
+.foundation-slot { width: 100%; justify-self: center; min-height: 82px; border-radius: 14px; border: 1px dashed rgba(255,255,255,.32); background: rgba(7,10,24,.62); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: rgba(255,255,255,.45); font-weight: 900; }
 .tableau { display: grid; grid-template-columns: repeat(7, 1fr); gap: 9px; min-height: 318px; }
 .tableau-column { position: relative; min-height: 318px; border-radius: 16px; background: linear-gradient(180deg, rgba(8,12,29,.48), rgba(8,12,29,.18)); border: 1px solid rgba(255,255,255,.09); padding: 7px; }
-.card { position: absolute; left: 7px; right: 7px; height: 86px; border-radius: 12px; border: 1px solid rgba(255,255,255,.32); background: linear-gradient(145deg, #f9fbff, #cfdcff); color: #111729; display: flex; flex-direction: column; justify-content: space-between; padding: 8px; font-weight: 950; box-shadow: 0 8px 20px rgba(0,0,0,.28); transition: transform .12s ease, box-shadow .12s ease, filter .12s ease; }
+.card { position: absolute; left: 50%; width: calc((100% - 14px) * .64); height: 86px; border-radius: 12px; border: 1px solid rgba(255,255,255,.32); background: linear-gradient(145deg, #f9fbff, #cfdcff); color: #111729; display: flex; flex-direction: column; justify-content: space-between; padding: 8px; font-weight: 950; box-shadow: 0 8px 20px rgba(0,0,0,.28); transform: translateX(-50%); transition: transform .12s ease, box-shadow .12s ease, filter .12s ease; }
 .card.red { color: #bd1940; }
 .card.face-down { background: radial-gradient(circle at 35% 25%, rgba(96,247,255,.45), transparent 28%), linear-gradient(145deg, #151e4d, #070a18); color: transparent; border-color: rgba(96,247,255,.35); }
 .card.face-down::after { content: '✦'; color: rgba(96,247,255,.72); font-size: 28px; margin: auto; }
-.card.selected { transform: translateY(-7px) scale(1.02); box-shadow: 0 0 0 2px var(--gold), 0 0 24px rgba(255,216,107,.52); z-index: 200 !important; }
+.card.selected { transform: translateX(-50%) translateY(-7px) scale(1.02); box-shadow: 0 0 0 2px var(--gold), 0 0 24px rgba(255,216,107,.52); z-index: 200 !important; }
+.card.dragging, .waste.dragging { opacity: .62; filter: brightness(1.18); }
 .card.hint { animation: hintPulse .8s ease-in-out 2; }
+.card.bounce-back { animation: cardBounceBack .24s ease-out 1; }
 .card .rank { font-size: 21px; }
 .card .suit { align-self: flex-end; font-size: 25px; }
 .card .mini { position: absolute; inset: 7px auto auto 9px; font-size: 12px; opacity: .75; }
+.static-card { position: static; left: auto; right: auto; width: 100%; height: 62px; min-height: 0; border-radius: 10px; padding: 6px; pointer-events: none; transform: none; }
+.static-card.bounce-back { animation: staticCardBounceBack .24s ease-out 1; }
+.static-card .rank { font-size: 17px; }
+.static-card .suit { font-size: 20px; }
+.pile-card { margin-top: 4px; }
+.foundation-card { width: min(62px, 100%); height: 58px; box-shadow: 0 5px 14px rgba(0,0,0,.24); }
+.foundation-slot small { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.55); }
 .action-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
 .action-row button { background: linear-gradient(145deg, rgba(13,19,43,.94), rgba(31,43,95,.9)); min-width: 150px; }
 .message-panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(560px, calc(100vw - 28px)); padding: 28px; border-radius: 24px; text-align: center; }
@@ -79,6 +91,8 @@ h1 { font-size: clamp(34px, 5.2vw, 66px); line-height: .88; margin: 0; text-tran
 @keyframes flashRed { 0%,100% { filter: none; } 50% { filter: drop-shadow(0 0 24px var(--red)) brightness(1.4); } }
 @keyframes flashCyan { 0%,100% { filter: none; } 50% { filter: drop-shadow(0 0 24px var(--cyan)) brightness(1.4); } }
 @keyframes hintPulse { 0%,100% { filter: none; } 50% { filter: drop-shadow(0 0 12px var(--gold)) brightness(1.25); } }
+@keyframes cardBounceBack { 0% { transform: translateX(-50%) translateY(-7px) scale(1.02); } 45% { transform: translateX(-50%) translateY(-14px) scale(1.03); filter: drop-shadow(0 0 12px var(--red)); } 100% { transform: translateX(-50%) translateY(-7px) scale(1.02); } }
+@keyframes staticCardBounceBack { 0% { transform: translateY(0) scale(1); } 45% { transform: translateY(-7px) scale(1.03); filter: drop-shadow(0 0 12px var(--red)); } 100% { transform: translateY(0) scale(1); } }
 @media (max-width: 760px) {
   .title-panel { grid-template-columns: 1fr; overflow-y: auto; max-height: calc(100vh - 20px); }
   .title-art { min-height: 200px; }
@@ -86,15 +100,15 @@ h1 { font-size: clamp(34px, 5.2vw, 66px); line-height: .88; margin: 0; text-tran
   .objective { grid-column: 1 / -1; order: 3; font-size: 12px; padding: 8px; }
   .status-card { padding: 9px; }
   .status-card.enemy { justify-self: stretch; }
-  #battle-ui { bottom: 7px; width: calc(100vw - 10px); gap: 7px; }
-  .top-row { grid-template-columns: 68px 68px 1fr 78px; gap: 6px; }
+  #battle-ui { top: auto; bottom: 7px; width: calc(100vw - 10px); gap: 7px; }
+  .top-row { grid-template-columns: 68px 68px 170px 78px; gap: 6px; }
   .pile, .limit-button { min-height: 58px; border-radius: 10px; font-size: 11px; }
   .pile strong { font-size: 16px; }
-  .foundations { gap: 5px; }
+  .foundations { grid-template-columns: repeat(4, 38px); gap: 5px; }
   .foundation-slot { min-height: 58px; font-size: 12px; }
   .tableau { gap: 4px; min-height: 260px; }
   .tableau-column { min-height: 260px; padding: 4px; }
-  .card { left: 3px; right: 3px; height: 64px; padding: 5px; border-radius: 8px; }
+  .card { left: 50%; width: calc((100% - 6px) * .64); height: 64px; padding: 5px; border-radius: 8px; }
   .card .rank { font-size: 16px; }
   .card .suit { font-size: 18px; }
   .action-row button { min-width: auto; padding: 9px 10px; font-size: 12px; }

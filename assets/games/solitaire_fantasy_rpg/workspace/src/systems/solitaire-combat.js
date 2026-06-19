@@ -65,6 +65,13 @@ export class SolitaireCombat {
     this.emit();
   }
 
+  selectWasteTop(emit = true) {
+    if (!this.waste.length || this.phase !== 'playing') return false;
+    this.selected = { source: 'waste', card: this.waste[this.waste.length - 1], cards: [this.waste[this.waste.length - 1]] };
+    if (emit) this.emit();
+    return true;
+  }
+
   selectTableau(col, index) {
     if (this.phase !== 'playing') return;
     const card = this.tableau[col][index];
@@ -84,17 +91,26 @@ export class SolitaireCombat {
     this.emit();
   }
 
+  selectTableauStack(col, index, emit = true) {
+    if (this.phase !== 'playing') return false;
+    const card = this.tableau[col][index];
+    if (!card || !card.faceUp) return false;
+    this.selected = { source: 'tableau', col, index, card, cards: this.tableau[col].slice(index) };
+    if (emit) this.emit();
+    return true;
+  }
+
   clickFoundation(suit) {
-    if (this.phase !== 'playing') return;
-    if (!this.selected) return;
+    if (this.phase !== 'playing') return false;
+    if (!this.selected) return false;
     if (this.selected.cards.length > 1) {
       this.onToast(GAME_TEXT.foundationStackOnly);
-      return;
+      return false;
     }
     const card = this.selected.card;
     if (card.suit !== suit || !canMoveToFoundation(card, this.foundations[card.suit])) {
       this.onToast(GAME_TEXT.foundationOrder);
-      return;
+      return false;
     }
     this.removeSelected();
     this.foundations[suit].push(card);
@@ -103,6 +119,24 @@ export class SolitaireCombat {
     this.clearSelection(false);
     this.checkWin();
     this.emit();
+    return true;
+  }
+
+  playSelectedToFoundation() {
+    if (this.phase !== 'playing' || !this.selected) return false;
+    if (this.selected.cards.length > 1) {
+      this.onToast(GAME_TEXT.foundationStackOnly);
+      return false;
+    }
+
+    const card = this.selected.card;
+    if (!canMoveToFoundation(card, this.foundations[card.suit])) {
+      this.onToast(GAME_TEXT.foundationOrder);
+      return false;
+    }
+
+    this.clickFoundation(card.suit);
+    return true;
   }
 
   autoFoundation() {
