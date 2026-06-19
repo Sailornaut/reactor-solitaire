@@ -64,6 +64,7 @@ async function startGame() {
   running = true;
   const snap = combat.snapshot();
   renderScene.setBackground(ENCOUNTER_BACKGROUNDS[snap.encounter]);
+  renderScene.setEnemyPortrait(snap.enemy.portrait);
   hud.toast(`Mission start: defeat the ${snap.enemy.name} with solitaire chains.`);
 }
 
@@ -75,6 +76,7 @@ function restart() {
   hud.showBattle();
   const snap = combat.snapshot();
   renderScene.setBackground(ENCOUNTER_BACKGROUNDS[snap.encounter]);
+  renderScene.setEnemyPortrait(snap.enemy.portrait);
   hud.toast(`${GAME_TEXT.newRun} Facing: ${snap.enemy.name}.`);
 }
 

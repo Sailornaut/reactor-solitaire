@@ -33,8 +33,8 @@ export class RenderScene {
       this.loadTexture(ASSETS.art.titleArt, 'title')
     ]);
     this.addBackdrop(backdrop);
-    this.hero = this.addPortrait(hero, -4.0, -0.25, 2.65, 'hero');
-    this.enemy = this.addPortrait(enemy, 4.0, -0.2, 2.75, 'enemy');
+    this.hero = this.addPortrait(hero, -4.0, 2.0, 2.65, 'hero');
+    this.enemy = this.addPortrait(enemy, 4.0, 2.0, 2.75, 'enemy');
     this.addCrystalField();
     return { backdrop, hero, enemy, title };
   }
@@ -132,10 +132,9 @@ export class RenderScene {
   }
 
   /**
-   * Switch the visual theme by updating particle colors and the veil.
-   * The backdrop texture (remote art or procedural fallback) is not replaced so
-   * the first-encounter look is preserved exactly.
-   * Safe to call before load() completes — guards are in place.
+   * Switch the visual theme: swaps the backdrop image, updates particle colors,
+   * and adjusts the veil. Safe to call before load() completes — guards are in place.
+   * Backdrop loads asynchronously; particles and veil update immediately.
    */
   setBackground(key) {
     const theme = BACKGROUNDS[key];
@@ -152,6 +151,25 @@ export class RenderScene {
         p.material.color.set(color);
       }
     }
+
+    if (this.backdrop && theme.backdrop) {
+      this.loadTexture(theme.backdrop, 'backdrop').then(tex => {
+        this.backdrop.material.map = tex;
+        this.backdrop.material.needsUpdate = true;
+      });
+    }
+  }
+
+  /**
+   * Swap the enemy portrait mesh to a new image.
+   * Loads asynchronously; falls back to the procedural texture on 404.
+   */
+  setEnemyPortrait(url) {
+    if (!this.enemy || !url) return;
+    this.loadTexture(url, 'enemy').then(tex => {
+      this.enemy.material.map = tex;
+      this.enemy.material.needsUpdate = true;
+    });
   }
 
   resize() {

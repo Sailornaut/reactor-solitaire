@@ -5,11 +5,26 @@
  * any public web host.  Vite copies public/ into dist/ automatically, so
  * every path below will be available at the same URL in the built output.
  *
- * ART  (JPG or PNG — 1024×576 px recommended for backdrops, 512×512 for portraits)
- *   public/assets/art/backdrop.jpg    ← battle background (ruined reactor district)
- *   public/assets/art/hero.jpg        ← hero portrait (mercenary swordsman)
- *   public/assets/art/enemy.jpg       ← enemy portrait (corrupted reactor knight)
+ * ART  (PNG or JPG — 1024×576 px for backdrops, 512×512 px for portraits)
+ *
+ *   Title screen (shown before a run starts):
+ *   public/assets/art/backdrop.png    ← default background during loading/title
+ *   public/assets/art/hero.jpg        ← hero portrait (title screen)
  *   public/assets/art/title.jpg       ← title screen key art
+ *   (enemy portrait on title screen reuses reactor-wraith.png)
+ *
+ *   Per-encounter backgrounds (swap in at mission start):
+ *   public/assets/art/rainy-reactor.png  ← encounters 0–1 (Reactor Wraith, Drone Warden)
+ *   public/assets/art/neon-market.png    ← encounters 2–3 (Glassblade Specter, Corporate Knight)
+ *   public/assets/art/skybridge.png      ← encounters 4–5 (Sludge Revenant, Core Seraph)
+ *
+ *   Per-enemy portraits (swap in at mission start):
+ *   public/assets/art/reactor-wraith.png
+ *   public/assets/art/drone-warden.png
+ *   public/assets/art/glassblade-specter.png
+ *   public/assets/art/corporate-knight.png
+ *   public/assets/art/sludge-revenant.png
+ *   public/assets/art/core-seraph.png
  *
  * AUDIO  (MP3 — OGG also works, update extensions to match your files)
  *   public/assets/audio/bgm.mp3       ← loopable cyber-fantasy battle music
@@ -25,10 +40,10 @@
  */
 export const ASSETS = {
   art: {
-    battleBackdrop: '/assets/art/backdrop.jpg',  // TODO: add public/assets/art/backdrop.jpg
-    heroPortrait:   '/assets/art/hero.jpg',       // TODO: add public/assets/art/hero.jpg
-    enemyPortrait:  '/assets/art/enemy.jpg',      // TODO: add public/assets/art/enemy.jpg
-    titleArt:       '/assets/art/title.jpg',      // TODO: add public/assets/art/title.jpg
+    battleBackdrop: '/assets/art/backdrop.png',
+    heroPortrait:   '/assets/art/hero.jpg',
+    enemyPortrait:  '/assets/art/reactor-wraith.png', // title screen default; swapped per-encounter at mission start
+    titleArt:       '/assets/art/title.jpg',
   },
   audio: {
     bgm:      '/assets/audio/bgm.mp3',

@@ -4,7 +4,10 @@
  * the display name so both can be updated from one place.
  *
  * All enemies share the shape expected by combat.js:
- *   { name, hp, maxHp, intent, phase }
+ *   { name, hp, maxHp, intent, phase, portrait }
+ *
+ * portrait — local path served from public/assets/art/.
+ * Missing files fall back to the procedural canvas portrait in render-scene.js.
  */
 export const ENEMIES = {
   /** Tutorial / default — familiar threat from the original build. */
@@ -14,6 +17,7 @@ export const ENEMIES = {
     maxHp: 110,
     intent: 12,
     phase: 1,
+    portrait: '/assets/art/reactor-wraith.png',
   },
 
   /**
@@ -26,6 +30,7 @@ export const ENEMIES = {
     maxHp: 75,
     intent: 8,
     phase: 1,
+    portrait: '/assets/art/drone-warden.png',
   },
 
   /**
@@ -38,6 +43,7 @@ export const ENEMIES = {
     maxHp: 90,
     intent: 16,
     phase: 1,
+    portrait: '/assets/art/glassblade-specter.png',
   },
 
   /**
@@ -50,6 +56,7 @@ export const ENEMIES = {
     maxHp: 155,
     intent: 10,
     phase: 1,
+    portrait: '/assets/art/sludge-revenant.png',
   },
 
   /**
@@ -62,6 +69,7 @@ export const ENEMIES = {
     maxHp: 135,
     intent: 14,
     phase: 1,
+    portrait: '/assets/art/corporate-knight.png',
   },
 
   /**
@@ -74,6 +82,7 @@ export const ENEMIES = {
     maxHp: 200,
     intent: 18,
     phase: 1,
+    portrait: '/assets/art/core-seraph.png',
   },
 };
 

@@ -1,14 +1,14 @@
 /**
  * Background theme definitions for Reactor Solitaire: Core Surge.
  *
- * Each theme drives two purely visual properties that RenderScene can
- * update without rebuilding the scene:
+ * Each theme drives the following visual properties in RenderScene:
+ *   backdrop       — local path for the full-scene background image
  *   particleColor  — color of the persistent crystal shard particles
  *   veilColor      — color of the semi-transparent darkening plane
  *   veilOpacity    — opacity of that plane (higher = darker, more oppressive)
  *
- * The backdrop texture (loaded remote art or procedural fallback) is left
- * untouched so the first encounter preserves the current look exactly.
+ * backdrop files live in public/assets/art/ and fall back to the procedural
+ * canvas texture in render-scene.js if the file is missing.
  */
 export const BACKGROUNDS = {
   /**
@@ -17,6 +17,7 @@ export const BACKGROUNDS = {
    */
   rainyReactorDistrict: {
     label: 'Rainy Reactor District',
+    backdrop: '/assets/art/rainy-reactor.png',
     particleColor: 0x60f7ff,  // cold cyan
     veilColor: 0x050812,
     veilOpacity: 0.28,
@@ -28,6 +29,7 @@ export const BACKGROUNDS = {
    */
   neonMarketAlley: {
     label: 'Neon Market Alley',
+    backdrop: '/assets/art/neon-market.png',
     particleColor: 0xff4fa3,  // hot magenta
     veilColor: 0x0a0308,
     veilOpacity: 0.20,
@@ -39,6 +41,7 @@ export const BACKGROUNDS = {
    */
   corporateSkybridge: {
     label: 'Corporate Skybridge',
+    backdrop: '/assets/art/skybridge.png',
     particleColor: 0x4dffb0,  // mint green
     veilColor: 0x02090c,
     veilOpacity: 0.34,
