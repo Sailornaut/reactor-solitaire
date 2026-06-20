@@ -38,7 +38,10 @@
  *   Audio  → AudioSystem silently no-ops; game is fully playable without sound.
  * ─────────────────────────────────────────────────────────────────────────────
  */
-export const asset = (path) => `${import.meta.env.BASE_URL}${path}`;
+const assetBase = globalThis.document?.baseURI
+  ?? new URL(import.meta.env.BASE_URL ?? './', 'http://localhost/').toString();
+
+export const asset = (path) => new URL(path, assetBase).toString();
 
 export const ASSETS = {
   art: {

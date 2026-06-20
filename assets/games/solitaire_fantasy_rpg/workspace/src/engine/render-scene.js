@@ -26,18 +26,13 @@ export class RenderScene {
 
   async load() {
     document.documentElement.style.setProperty('--title-art', `url(${ASSETS.art.titleArt})`);
-    const [backdrop, hero, enemy, title] = await Promise.all([
+    const [backdrop] = await Promise.all([
       this.loadTexture(ASSETS.art.battleBackdrop, 'backdrop'),
-      this.loadTexture(ASSETS.art.heroPortrait, 'hero'),
-      this.loadTexture(ASSETS.art.enemyPortrait, 'enemy'),
       this.loadTexture(ASSETS.art.titleArt, 'title')
     ]);
     this.addBackdrop(backdrop);
-    this.hero = this.addPortrait(hero, -5.8, 0.2, 1.99, 'hero');
-    this.enemy = this.addPortrait(enemy, 5.8, 0.2, 2.06, 'enemy');
-    this.updatePortraitEdgePositions();
     this.addCrystalField();
-    return { backdrop, hero, enemy, title };
+    return { backdrop };
   }
 
   loadTexture(url, kind = 'asset') {
@@ -102,22 +97,6 @@ export class RenderScene {
     this.scene.add(this.veil);
   }
 
-  addPortrait(texture, x, y, h, kind) {
-    const geo = new THREE.PlaneGeometry(h, h);
-    const mat = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.set(x, y, -1.8);
-    mesh.userData.baseX = x;
-    mesh.userData.baseY = y;
-    mesh.userData.kind = kind;
-    this.scene.add(mesh);
-
-    const ring = new THREE.Mesh(new THREE.RingGeometry(h * 0.52, h * 0.57, 64), new THREE.MeshBasicMaterial({ color: kind === 'hero' ? 0x60f7ff : 0xff4fa3, transparent: true, opacity: 0.52, side: THREE.DoubleSide }));
-    ring.position.set(x, y, -1.9);
-    this.scene.add(ring);
-    mesh.userData.ring = ring;
-    return mesh;
-  }
 
   addCrystalField() {
     const mat = new THREE.MeshBasicMaterial({ color: 0x60f7ff, transparent: true, opacity: 0.5 });
@@ -161,17 +140,6 @@ export class RenderScene {
     }
   }
 
-  /**
-   * Swap the enemy portrait mesh to a new image.
-   * Loads asynchronously; falls back to the procedural texture on 404.
-   */
-  setEnemyPortrait(url) {
-    if (!this.enemy || !url) return;
-    this.loadTexture(url, 'enemy').then(tex => {
-      this.enemy.material.map = tex;
-      this.enemy.material.needsUpdate = true;
-    });
-  }
 
   resize() {
     const w = window.innerWidth;
@@ -184,41 +152,10 @@ export class RenderScene {
     this.camera.top = viewH / 2;
     this.camera.bottom = -viewH / 2;
     this.camera.updateProjectionMatrix();
-    this.updatePortraitEdgePositions();
   }
 
-  updatePortraitEdgePositions() {
-    const marginPx = 4;
-    const viewW = this.camera.right - this.camera.left;
-    const pxToWorld = viewW / window.innerWidth;
-    const margin = marginPx * pxToWorld;
-
-    if (this.hero) {
-      const width = this.hero.geometry.parameters.width;
-      this.hero.userData.baseX = this.camera.left + margin + width / 2;
-      this.hero.position.x = this.hero.userData.baseX;
-      this.hero.userData.ring.position.x = this.hero.userData.baseX;
-    }
-
-    if (this.enemy) {
-      const width = this.enemy.geometry.parameters.width;
-      this.enemy.userData.baseX = this.camera.right - margin - width / 2;
-      this.enemy.position.x = this.enemy.userData.baseX;
-      this.enemy.userData.ring.position.x = this.enemy.userData.baseX;
-    }
-  }
-
-  hit(kind) {
-    const target = kind === 'enemy' ? this.enemy : this.hero;
-    if (!target) return;
-    const dir = kind === 'enemy' ? 1 : -1;
-    target.position.x = target.userData.baseX + dir * 0.18;
-    target.scale.set(1.08, 1.08, 1);
-    this.shake(0.16, kind === 'enemy' ? 0.08 : 0.12);
-    setTimeout(() => {
-      target.position.x = target.userData.baseX;
-      target.scale.set(1, 1, 1);
-    }, 120);
+  hit() {
+    this.shake(0.16, 0.1);
   }
 
   limitBurst() {
@@ -241,15 +178,6 @@ export class RenderScene {
 
   update() {
     const dt = Math.min(this.clock.getDelta(), 0.033);
-    const t = performance.now() * 0.001;
-    if (this.hero) {
-      this.hero.position.y = this.hero.userData.baseY + Math.sin(t * 1.8) * 0.035;
-      this.hero.userData.ring.rotation.z += dt * 0.5;
-    }
-    if (this.enemy) {
-      this.enemy.position.y = this.enemy.userData.baseY + Math.cos(t * 1.6) * 0.04;
-      this.enemy.userData.ring.rotation.z -= dt * 0.45;
-    }
     for (let i = this.particles.length - 1; i >= 0; i--) {
       const p = this.particles[i];
       if (p.userData.decay) {

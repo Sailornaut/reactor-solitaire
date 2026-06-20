@@ -129,7 +129,11 @@ export class HudView {
   renderTableau(state) {
     this.dom.tableau.innerHTML = '';
     const mobile = window.innerWidth < 760;
-    const offset = mobile ? 28 : 38;
+    const baseOffset = mobile ? 24 : 32;
+    const tableauEl = this.dom.tableau;
+    const availH = tableauEl.clientHeight || (mobile ? 260 : 400);
+    const cardH = mobile ? 54 : 72;
+
     state.tableau.forEach((column, colIndex) => {
       const col = document.createElement('div');
       col.className = 'tableau-column';
@@ -145,9 +149,13 @@ export class HudView {
         event.preventDefault();
         if (!this.combat.moveSelectedToTableau(colIndex)) this.bounceSelected();
       });
+      const maxStack = column.length;
+      const maxTotalH = availH - 10;
+      const offset = maxStack > 1 ? Math.min(baseOffset, (maxTotalH - cardH) / (maxStack - 1)) : baseOffset;
+
       column.forEach((card, index) => {
         const node = this.createCard(card, state.selected, colIndex, index);
-        node.style.top = `${index * offset}px`;
+        node.style.top = `${Math.round(index * offset)}px`;
         node.style.zIndex = index + 1;
         node.addEventListener('click', (event) => {
           event.stopPropagation();
