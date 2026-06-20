@@ -128,11 +128,12 @@ export class HudView {
 
   renderTableau(state) {
     this.dom.tableau.innerHTML = '';
-    const mobile = window.innerWidth < 760;
-    const baseOffset = mobile ? 24 : 32;
+    const landscape = window.innerHeight < 500 && window.innerWidth > window.innerHeight;
+    const mobile = window.innerWidth < 760 && !landscape;
+    const baseOffset = landscape ? 16 : mobile ? 24 : 32;
     const tableauEl = this.dom.tableau;
-    const availH = tableauEl.clientHeight || (mobile ? 260 : 400);
-    const cardH = mobile ? 54 : 72;
+    const availH = tableauEl.clientHeight || (landscape ? 140 : mobile ? 260 : 400);
+    const cardH = landscape ? 38 : mobile ? 54 : 72;
 
     state.tableau.forEach((column, colIndex) => {
       const col = document.createElement('div');
