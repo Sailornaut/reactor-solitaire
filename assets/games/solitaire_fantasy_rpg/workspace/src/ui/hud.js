@@ -253,6 +253,8 @@ export class HudView {
   showGameOver(title, body) {
     this.dom.messageTitle.textContent = title;
     this.dom.messageBody.textContent = body;
+    document.getElementById('restart-button').textContent =
+      title === 'Mission Complete' ? 'Next Enemy' : 'Try Again';
     this.dom.messagePanel.hidden = false;
   }
 

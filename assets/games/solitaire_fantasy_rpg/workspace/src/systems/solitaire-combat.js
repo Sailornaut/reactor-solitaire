@@ -13,6 +13,8 @@ import { canMoveToFoundation, canPlaceOnTableau, isFoundationsComplete } from '.
 import { GAME_TEXT } from '../content/game-text.js';
 import { ENCOUNTER_ORDER } from '../content/enemies.js';
 
+const INACTIVITY_MS = 10_000;
+
 export class SolitaireCombat {
   constructor({ onChange, onDamage, onToast, onGameOver }) {
     this.onChange = onChange;
@@ -20,10 +22,24 @@ export class SolitaireCombat {
     this.onToast = onToast;
     this.onGameOver = onGameOver;
     this.combo = 0;
-    // Tracks which enemy in ENCOUNTER_ORDER is active.
-    // Advances on win; stays the same on loss so the player retries.
     this.encounterIndex = 0;
+    this._inactivityTimer = null;
     this.reset();
+  }
+
+  _resetInactivityTimer() {
+    clearTimeout(this._inactivityTimer);
+    if (this.phase !== 'playing') return;
+    this._inactivityTimer = setTimeout(() => {
+      if (this.phase === 'playing') {
+        this.enemyAttack('Too slow!');
+      }
+    }, INACTIVITY_MS);
+  }
+
+  _stopInactivityTimer() {
+    clearTimeout(this._inactivityTimer);
+    this._inactivityTimer = null;
   }
 
   reset() {
@@ -39,11 +55,13 @@ export class SolitaireCombat {
     this.moves = 0;
     this.combo = 0;
     this.phase = 'playing';
+    this._resetInactivityTimer();
     this.emit();
   }
 
   draw() {
     if (this.phase !== 'playing') return;
+    this._resetInactivityTimer();
     this.clearSelection();
     if (this.stock.length) {
       const card = this.stock.pop();
@@ -61,6 +79,7 @@ export class SolitaireCombat {
 
   selectFromWaste() {
     if (!this.waste.length || this.phase !== 'playing') return;
+    this._resetInactivityTimer();
     this.selected = { source: 'waste', card: this.waste[this.waste.length - 1], cards: [this.waste[this.waste.length - 1]] };
     this.emit();
   }
@@ -74,6 +93,7 @@ export class SolitaireCombat {
 
   selectTableau(col, index) {
     if (this.phase !== 'playing') return;
+    this._resetInactivityTimer();
     const card = this.tableau[col][index];
     if (!card || !card.faceUp) return;
     const stack = this.tableau[col].slice(index);
@@ -102,14 +122,17 @@ export class SolitaireCombat {
 
   clickFoundation(suit) {
     if (this.phase !== 'playing') return false;
+    this._resetInactivityTimer();
     if (!this.selected) return false;
     if (this.selected.cards.length > 1) {
       this.onToast(GAME_TEXT.foundationStackOnly);
+      this.enemyAttack('Bad move!');
       return false;
     }
     const card = this.selected.card;
     if (card.suit !== suit || !canMoveToFoundation(card, this.foundations[card.suit])) {
       this.onToast(GAME_TEXT.foundationOrder);
+      this.enemyAttack('Bad move!');
       return false;
     }
     this.removeSelected();
@@ -141,6 +164,7 @@ export class SolitaireCombat {
 
   autoFoundation() {
     if (this.phase !== 'playing') return;
+    this._resetInactivityTimer();
     const candidates = [];
     const wasteTop = this.waste[this.waste.length - 1];
     if (wasteTop && canMoveToFoundation(wasteTop, this.foundations[wasteTop.suit])) candidates.push({ source: 'waste', card: wasteTop });
@@ -161,6 +185,7 @@ export class SolitaireCombat {
 
   moveSelectedToTableau(targetCol) {
     if (!this.selected) return false;
+    this._resetInactivityTimer();
     const moving = this.selected.cards;
     const first = moving[0];
     const dest = this.tableau[targetCol];
@@ -168,6 +193,7 @@ export class SolitaireCombat {
     const legal = canPlaceOnTableau(first, top);
     if (!legal) {
       this.onToast(top ? GAME_TEXT.tableauRule : GAME_TEXT.kingOnly);
+      this.enemyAttack('Bad move!');
       return false;
     }
     this.removeSelected();
@@ -215,6 +241,7 @@ export class SolitaireCombat {
 
   brace() {
     if (this.phase !== 'playing') return;
+    this._resetInactivityTimer();
     this.turnsWithoutDamage++;
     const result = applyBrace(this.hero, this.enemy);
     this.combo = 0;
@@ -225,6 +252,7 @@ export class SolitaireCombat {
 
   useLimit() {
     if (this.phase !== 'playing' || this.hero.limit < 100) return;
+    this._resetInactivityTimer();
     const faceUp = this.tableau.flat().filter(c => c.faceUp).length;
     const result = activateCoreSurge(this.hero, this.enemy, faceUp);
     this.onDamage('enemyLimit', result.damage, result.label);
@@ -274,7 +302,7 @@ export class SolitaireCombat {
   win(body) {
     if (this.phase !== 'playing') return;
     this.phase = 'won';
-    // Advance to the next encounter; wrap around after the final boss.
+    this._stopInactivityTimer();
     this.encounterIndex = (this.encounterIndex + 1) % ENCOUNTER_ORDER.length;
     this.onGameOver('Mission Complete', body);
   }
@@ -282,6 +310,7 @@ export class SolitaireCombat {
   lose(body) {
     if (this.phase !== 'playing') return;
     this.phase = 'lost';
+    this._stopInactivityTimer();
     this.onGameOver('Game Over', body);
   }
 
