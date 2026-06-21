@@ -23,8 +23,13 @@ export class SolitaireCombat {
     this.onGameOver = onGameOver;
     this.combo = 0;
     this.encounterIndex = 0;
+    this.drawCount = 1;
     this._inactivityTimer = null;
     this.reset();
+  }
+
+  setDrawCount(n) {
+    this.drawCount = n === 3 ? 3 : 1;
   }
 
   _resetInactivityTimer() {
@@ -64,11 +69,14 @@ export class SolitaireCombat {
     this._resetInactivityTimer();
     this.clearSelection();
     if (this.stock.length) {
-      const card = this.stock.pop();
-      card.faceUp = true;
-      this.waste.push(card);
+      const count = Math.min(this.drawCount, this.stock.length);
+      for (let i = 0; i < count; i++) {
+        const card = this.stock.pop();
+        card.faceUp = true;
+        this.waste.push(card);
+      }
       gainDrawSurge(this.hero);
-      this.onToast(GAME_TEXT.drawCard);
+      this.onToast(count > 1 ? `Drew ${count} cards. Surge +2%` : GAME_TEXT.drawCard);
     } else if (this.waste.length) {
       this.stock = this.waste.reverse().map(c => ({ ...c, faceUp: false }));
       this.waste = [];
@@ -335,6 +343,7 @@ export class SolitaireCombat {
       phase: this.phase,
       moves: this.moves,
       encounter: this.encounterIndex,
+      drawCount: this.drawCount,
     };
   }
 }

@@ -20,6 +20,11 @@
         <p class="eyebrow">Cyber-fantasy card combat RPG</p>
         <p class="pitch">Fight through reactor phantoms by solving a solitaire battle grid. Every smart card move charges your Surge; every dead turn lets the enemy strike.</p>
         <div id="loading" class="loading">Loading assets…</div>
+        <div id="difficulty-selector" class="difficulty-selector" hidden>
+          <button id="diff-draw1" class="diff-btn active" data-draw="1">Draw 1 <small>Easy</small></button>
+          <button id="diff-draw3" class="diff-btn" data-draw="3">Draw 3 <small>Hard · +50% XP</small></button>
+        </div>
+        <div id="player-level" class="player-level" hidden>Level <strong id="level-num">1</strong> · <span id="xp-display">0/100 XP</span></div>
         <button id="start-button" class="primary" hidden>Start Mission</button>
         <div class="rules">
           <strong>Combat rules</strong>
@@ -65,6 +70,7 @@
     <section id="message-panel" class="panel message-panel" hidden>
       <h2 id="message-title">Victory</h2>
       <p id="message-body"></p>
+      <p id="xp-reward" class="xp-reward"></p>
       <button id="restart-button" class="primary">Restart Run</button>
     </section>
 

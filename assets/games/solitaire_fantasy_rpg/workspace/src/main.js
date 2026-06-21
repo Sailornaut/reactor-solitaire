@@ -4,6 +4,7 @@ import { AudioSystem } from './systems/audio.js';
 import { HudView } from './ui/hud.js';
 import { GAME_TEXT } from './content/game-text.js';
 import { ENCOUNTER_BACKGROUNDS } from './content/backgrounds.js';
+import { loadProgress, saveProgress, calculateXpGain, addXp, xpToNextLevel, setDifficulty } from './systems/progression.js';
 
 const canvas = document.getElementById('game-canvas');
 const loading = document.getElementById('loading');
@@ -16,6 +17,7 @@ let audio;
 let combat;
 let hud;
 let running = false;
+let progress = loadProgress();
 
 async function boot() {
   renderScene = new RenderScene(canvas);
@@ -38,7 +40,12 @@ async function boot() {
     },
     onToast: (message) => hud?.toast(message),
     onGameOver: (title, body) => {
-      hud.showGameOver(title, body);
+      const won = title === 'Mission Complete';
+      const xpGain = calculateXpGain(won, combat.encounterIndex, progress.difficulty);
+      if (won) progress.totalWins++; else progress.totalLosses++;
+      addXp(progress, xpGain);
+      saveProgress(progress);
+      hud.showGameOver(title, body, xpGain, progress);
       running = false;
     }
   });
@@ -48,6 +55,10 @@ async function boot() {
     await renderScene.load();
     loading.hidden = true;
     startButton.hidden = false;
+    document.getElementById('difficulty-selector').hidden = false;
+    document.getElementById('player-level').hidden = false;
+    updateTitleLevel();
+    initDifficultySelector();
   } catch (error) {
     console.error('Asset load failed', error);
     loading.textContent = 'Some remote art failed to load. Check your connection and refresh.';
@@ -60,6 +71,7 @@ async function startGame() {
   audio.play('ui', 0.45);
   titleScreen.hidden = true;
   hud.showBattle();
+  combat.setDrawCount(progress.difficulty === 'draw3' ? 3 : 1);
   combat.reset();
   running = true;
   const snap = combat.snapshot();
@@ -70,6 +82,7 @@ async function startGame() {
 function restart() {
   audio.play('ui', 0.45);
   hud.hideGameOver();
+  combat.setDrawCount(progress.difficulty === 'draw3' ? 3 : 1);
   combat.reset();
   running = true;
   hud.showBattle();
@@ -95,6 +108,32 @@ window.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') combat.brace();
   if (event.key === 'Escape') combat.clearSelection();
 });
+
+function updateTitleLevel() {
+  document.getElementById('level-num').textContent = progress.level;
+  document.getElementById('xp-display').textContent = `${progress.xp}/${xpToNextLevel()} XP`;
+}
+
+function initDifficultySelector() {
+  const btn1 = document.getElementById('diff-draw1');
+  const btn3 = document.getElementById('diff-draw3');
+  if (progress.difficulty === 'draw3') {
+    btn1.classList.remove('active');
+    btn3.classList.add('active');
+  }
+  btn1.addEventListener('click', () => {
+    setDifficulty(progress, 'draw1');
+    saveProgress(progress);
+    btn1.classList.add('active');
+    btn3.classList.remove('active');
+  });
+  btn3.addEventListener('click', () => {
+    setDifficulty(progress, 'draw3');
+    saveProgress(progress);
+    btn3.classList.add('active');
+    btn1.classList.remove('active');
+  });
+}
 
 startButton.addEventListener('click', startGame, { once: true });
 restartButton.addEventListener('click', restart);

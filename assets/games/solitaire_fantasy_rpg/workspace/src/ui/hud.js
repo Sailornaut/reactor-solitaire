@@ -251,11 +251,15 @@ export class HudView {
     setTimeout(() => document.getElementById('battle-ui')?.classList.remove('shake'), 260);
   }
 
-  showGameOver(title, body) {
+  showGameOver(title, body, xpGain, progress) {
     this.dom.messageTitle.textContent = title;
     this.dom.messageBody.textContent = body;
     document.getElementById('restart-button').textContent =
       title === 'Mission Complete' ? 'Next Enemy' : 'Try Again';
+    const xpEl = document.getElementById('xp-reward');
+    if (xpEl && xpGain != null) {
+      xpEl.textContent = `+${xpGain} XP · Level ${progress.level}`;
+    }
     this.dom.messagePanel.hidden = false;
   }
 

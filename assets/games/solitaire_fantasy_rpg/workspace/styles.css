@@ -35,6 +35,14 @@ h1 { font-size: clamp(34px, 5.2vw, 66px); line-height: .88; margin: 0; text-tran
 .primary:hover, .action-row button:hover, .pile:hover, .limit-button:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.1); }
 .rules { margin-top: 8px; display: grid; gap: 8px; color: #c7d2ff; font-size: 14px; }
 .rules strong { color: var(--gold); }
+.difficulty-selector { display: flex; gap: 8px; }
+.diff-btn { flex: 1; border-radius: 12px; padding: 10px 12px; font-weight: 800; font-size: 13px; background: rgba(13,19,43,.9); border: 1px solid rgba(255,255,255,.18); color: var(--ink); transition: border-color .15s, background .15s; }
+.diff-btn small { display: block; font-size: 10px; font-weight: 600; opacity: .7; margin-top: 2px; }
+.diff-btn.active { border-color: var(--cyan); background: rgba(96,247,255,.12); box-shadow: 0 0 12px rgba(96,247,255,.2); }
+.diff-btn:hover:not(.active) { border-color: rgba(255,255,255,.4); }
+.player-level { font-size: 14px; color: var(--gold); font-weight: 800; }
+.player-level strong { font-size: 18px; }
+.xp-reward { color: var(--gold); font-weight: 800; font-size: 16px; margin: 8px 0 0; }
 
 /* ── HUD (hero/enemy health) ─────────────────────────────────────────────── */
 #hud { position: absolute; top: max(8px, env(safe-area-inset-top)); left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); display: grid; grid-template-columns: minmax(160px, 240px) 1fr minmax(160px, 240px); align-items: start; gap: 8px; z-index: 10; }
